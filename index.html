@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Диалог с ИИ на одной странице · Talking to AI — A One-Page Companion</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Cormorant Garamond & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            // Light Theme Tokens
+            paper: '#F9F6F0',
+            cardLight: '#FFFFFF',
+            borderLight: '#E6DFD3',
+            textLight: '#222426',
+            mutedLight: '#5B6066',
+            accentForest: '#2E5A4C',
+            accentTerracotta: '#B45B41',
+            
+            // Dark Theme Tokens
+            darkBg: '#16181A',
+            cardDark: '#1F2225',
+            borderDark: '#2E3238',
+            textDark: '#EBE7DF',
+            mutedDark: '#9FA5AD',
+            accentGold: '#C9A96E',
+            accentSage: '#7DA696',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Smooth CSS Variable Transition */
+    :root {
+      --bg-color: #F9F6F0;
+      --card-bg: #FFFFFF;
+      --border-color: #E6DFD3;
+      --text-main: #222426;
+      --text-muted: #5B6066;
+      --accent-primary: #2E5A4C;
+      --accent-secondary: #B45B41;
+      --highlight-bg: #F0EAE1;
+    }
+
+    .dark {
+      --bg-color: #16181A;
+      --card-bg: #1F2225;
+      --border-color: #2E3238;
+      --text-main: #EBE7DF;
+      --text-muted: #9FA5AD;
+      --accent-primary: #C9A96E;
+      --accent-secondary: #7DA696;
+      --highlight-bg: #272B30;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .font-serif-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    .custom-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .custom-card:hover {
+      border-color: var(--accent-primary);
+    }
+
+    /* Hide elements based on language */
+    [data-lang] {
+      display: none;
+    }
+    html[lang="ru"] [data-lang="ru"] {
+      display: block;
+    }
+    html[lang="ru"] span[data-lang="ru"], 
+    html[lang="ru"] inline[data-lang="ru"] {
+      display: inline;
+    }
+    html[lang="en"] [data-lang="en"] {
+      display: block;
+    }
+    html[lang="en"] span[data-lang="en"], 
+    html[lang="en"] inline[data-lang="en"] {
+      display: inline;
+    }
+
+    /* Custom Toast */
+    #toast {
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 12pt !important;
+        line-height: 1.4 !important;
+      }
+      .custom-card {
+        background: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 1rem !important;
+      }
+      a {
+        text-decoration: underline !important;
+        color: #000000 !important;
+      }
+      /* Expand all active spheres in print mode */
+      .sphere-content {
+        display: block !important;
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+      }
+      .sphere-tab-btn {
+        border: none !important;
+        font-weight: bold !important;
+        text-decoration: underline !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- STICKY TOP TOOLBAR -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-opacity-90 border-b border-[var(--border-color)] transition-colors no-print" style="background-color: var(--bg-color);">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      
+      <!-- Logo / Title -->
+      <a href="#hero" class="flex items-center gap-2 font-serif-title text-xl font-bold tracking-tight hover:opacity-80 transition-opacity">
+        <span class="inline-block w-3 h-3 rounded-full" style="background-color: var(--accent-primary);"></span>
+        <span data-lang="ru">Диалог с ИИ</span>
+        <span data-lang="en">Talking to AI</span>
+        <span class="text-xs font-sans font-normal opacity-60 ml-1 hidden sm:inline" data-lang="ru">на одной странице</span>
+        <span class="text-xs font-sans font-normal opacity-60 ml-1 hidden sm:inline" data-lang="en">One-Page Companion</span>
+      </a>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        
+        <!-- Language Switcher -->
+        <div class="flex items-center bg-[var(--highlight-bg)] p-1 rounded-lg border border-[var(--border-color)] text-xs font-medium">
+          <button id="lang-ru-btn" onclick="setLanguage('ru')" class="px-2.5 py-1 rounded-md transition-all">RU</button>
+          <button id="lang-en-btn" onclick="setLanguage('en')" class="px-2.5 py-1 rounded-md transition-all">EN</button>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" class="p-2 rounded-lg bg-[var(--highlight-bg)] border border-[var(--border-color)] hover:opacity-80 transition-opacity" title="Сменить тему / Toggle Theme">
+          <!-- Sun icon -->
+          <svg id="sun-icon" class="w-4 h-4 hidden dark:block text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <!-- Moon icon -->
+          <svg id="moon-icon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+
+        <!-- Print / PDF Button -->
+        <button onclick="window.print()" class="hidden md:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-[var(--highlight-bg)] border border-[var(--border-color)] hover:opacity-80 transition-opacity">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          <span data-lang="ru">Печать / PDF</span>
+          <span data-lang="en">Print / PDF</span>
+        </button>
+
+        <!-- Download .md -->
+        <button onclick="downloadMarkdown()" class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-white transition-opacity hover:opacity-90" style="background-color: var(--accent-primary);">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span data-lang="ru">Скачать .md</span>
+          <span data-lang="en">Download .md</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-16">
+
+    <!-- 1. HERO SECTION -->
+    <section id="hero" class="space-y-6 text-center sm:text-left">
+      <div class="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase border border-[var(--border-color)] bg-[var(--highlight-bg)]" style="color: var(--accent-primary);">
+        <span data-lang="ru">Внеплатформенная шпаргалка · Со-творчество двух интеллектов</span>
+        <span data-lang="en">Platform-agnostic companion · Two intelligences in dialogue</span>
+      </div>
+      
+      <h1 class="font-serif-title text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">
+        <span data-lang="ru">Говорите с ним как с внимательным собеседником.</span>
+        <span data-lang="en">Talk to it like an attentive thinking partner.</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl max-w-3xl opacity-90 leading-relaxed" style="color: var(--text-muted);">
+        <span data-lang="ru">Здесь не нужно учить команды или язык программирования. Откройте любой удобный вам чат (Gemini, Claude, DeepSeek, ChatGPT, Qwen, Kimi, Mistral или локальную модель), опишите ситуацию живыми человеческими словами и размышляйте вместе шаг за шагом.</span>
+        <span data-lang="en">You don't need to learn special code or formulas. Open any AI chat you prefer (Gemini, Claude, DeepSeek, ChatGPT, Qwen, Kimi, Mistral, or a local model), describe your situation in plain words, and think together step by step.</span>
+      </p>
+    </section>
+
+    <!-- 2. THREE MODES OF DIALOGUE -->
+    <section class="space-y-6">
+      <div class="border-b border-[var(--border-color)] pb-3">
+        <h2 class="font-serif-title text-2xl sm:text-3xl font-semibold">
+          <span data-lang="ru">Три режима живого диалога</span>
+          <span data-lang="en">Three Modes of Living Dialogue</span>
+        </h2>
+        <p class="text-sm opacity-75 mt-1" style="color: var(--text-muted);">
+          <span data-lang="ru">Выберите роль, которая лучше всего подходит для вашей задачи прямо сейчас</span>
+          <span data-lang="en">Choose the role that fits your current task best</span>
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Mode 1 -->
+        <div class="custom-card p-6 rounded-2xl space-y-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-serif-title text-xl font-bold" style="background-color: var(--highlight-bg); color: var(--accent-primary);">1</div>
+          <h3 class="font-serif-title text-xl font-bold">
+            <span data-lang="ru">Интервьюер</span>
+            <span data-lang="en">Interviewer</span>
+          </h3>
+          <p class="text-sm leading-relaxed opacity-90" style="color: var(--text-muted);">
+            <span data-lang="ru">Когда в голове туман, мысли путаются и вы пока сами не знаете, с чего начать. Попросите ИИ задать вам 4–5 уточняющих вопросов, прежде чем давать ответ.</span>
+            <span data-lang="en">When thoughts are foggy and you aren't sure where to start. Ask the AI to ask you 4–5 clarifying questions before it offers any solution.</span>
+          </p>
+        </div>
+
+        <!-- Mode 2 -->
+        <div class="custom-card p-6 rounded-2xl space-y-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-serif-title text-xl font-bold" style="background-color: var(--highlight-bg); color: var(--accent-secondary);">2</div>
+          <h3 class="font-serif-title text-xl font-bold">
+            <span data-lang="ru">Оппонент</span>
+            <span data-lang="en">Thoughtful Opponent</span>
+          </h3>
+          <p class="text-sm leading-relaxed opacity-90" style="color: var(--text-muted);">
+            <span data-lang="ru">Когда вам нужна честная проверка идеи на прочность, а не вежливое поддакивание. Попросите найти слабые места, незамеченные риски или предложить альтернативный аргумент.</span>
+            <span data-lang="en">When you need an honest stress-test of an idea instead of polite agreement. Ask it to uncover weak spots, missed risks, or counter-arguments.</span>
+          </p>
+        </div>
+
+        <!-- Mode 3 -->
+        <div class="custom-card p-6 rounded-2xl space-y-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-serif-title text-xl font-bold" style="background-color: var(--highlight-bg); color: var(--accent-primary);">3</div>
+          <h3 class="font-serif-title text-xl font-bold">
+            <span data-lang="ru">Соавтор и переводчик смыслов</span>
+            <span data-lang="en">Co-Author &amp; Sense-Translator</span>
+          </h3>
+          <p class="text-sm leading-relaxed opacity-90" style="color: var(--text-muted);">
+            <span data-lang="ru">Когда мысль уже есть, но хочется нащупать точную структуру, найти живую метафору или объяснить сложную концепцию понятным языком другой профессии.</span>
+            <span data-lang="en">When the core idea exists, but you want a clearer structure, a vivid metaphor, or to translate a complex concept into another discipline's language.</span>
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. FROM DRY QUERY TO LIVING DIALOGUE -->
+    <section class="space-y-6">
+      <div class="border-b border-[var(--border-color)] pb-3">
+        <h2 class="font-serif-title text-2xl sm:text-3xl font-semibold">
+          <span data-lang="ru">От сухого запроса к живому диалогу</span>
+          <span data-lang="en">From a Dry Query to Living Dialogue</span>
+        </h2>
+        <p class="text-sm opacity-75 mt-1" style="color: var(--text-muted);">
+          <span data-lang="ru">Четыре опоры, которые превращают односложный ответ в глубокий разбор</span>
+          <span data-lang="en">Four pillars that transform a surface-level response into a deep exploration</span>
+        </p>
+      </div>
+
+      <!-- 4 Pillars Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="custom-card p-4 rounded-xl text-center space-y-1">
+          <div class="text-xs uppercase tracking-wider font-semibold opacity-60">1. Context</div>
+          <div class="font-bold text-base" data-lang="ru">Контекст</div>
+          <div class="font-bold text-base" data-lang="en">Context</div>
+          <div class="text-xs opacity-80" data-lang="ru">Кто вы, для кого работа и какова ситуация</div>
+          <div class="text-xs opacity-80" data-lang="en">Who you are, who it's for, the situation</div>
+        </div>
+        <div class="custom-card p-4 rounded-xl text-center space-y-1">
+          <div class="text-xs uppercase tracking-wider font-semibold opacity-60">2. Goal</div>
+          <div class="font-bold text-base" data-lang="ru">Цель</div>
+          <div class="font-bold text-base" data-lang="en">Goal</div>
+          <div class="text-xs opacity-80" data-lang="ru">Что должно измениться в результате</div>
+          <div class="text-xs opacity-80" data-lang="en">What needs to change as a result</div>
+        </div>
+        <div class="custom-card p-4 rounded-xl text-center space-y-1">
+          <div class="text-xs uppercase tracking-wider font-semibold opacity-60">3. Tone</div>
+          <div class="font-bold text-base" data-lang="ru">Тон и границы</div>
+          <div class="font-bold text-base" data-lang="en">Tone &amp; Boundaries</div>
+          <div class="text-xs opacity-80" data-lang="ru">Без канцелярита, сдержанно, на равных</div>
+          <div class="text-xs opacity-80" data-lang="en">No jargon, calm tone, peer-to-peer</div>
+        </div>
+        <div class="custom-card p-4 rounded-xl text-center space-y-1">
+          <div class="text-xs uppercase tracking-wider font-semibold opacity-60">4. Shape</div>
+          <div class="font-bold text-base" data-lang="ru">Формат</div>
+          <div class="font-bold text-base" data-lang="en">Shape</div>
+          <div class="text-xs opacity-80" data-lang="ru">3 тезиса, таблица, список вопросов</div>
+          <div class="text-xs opacity-80" data-lang="en">3 key points, table, question list</div>
+        </div>
+      </div>
+
+      <!-- Contrast Before / After Box -->
+      <div class="custom-card p-6 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-6 bg-opacity-50">
+        <div class="space-y-2 border-b md:border-b-0 md:border-r border-[var(--border-color)] pb-4 md:pb-0 md:pr-6">
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <span data-lang="ru">Как не стоит (сухой запрос)</span>
+            <span data-lang="en">Before (Dry Query)</span>
+          </div>
+          <p class="text-sm font-mono p-3 rounded-lg bg-[var(--highlight-bg)] opacity-90">
+            «Напиши пояснение к проекту для коллег.»
+          </p>
+          <p class="text-xs text-rose-400 opacity-90" data-lang="ru">Вы получите общий шаблон, полный штампов и громких фраз.</p>
+          <p class="text-xs text-rose-400 opacity-90" data-lang="en">Yields a generic template filled with clichés and buzzwords.</p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style="color: var(--accent-primary);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span data-lang="ru">Как лучше (живой диалог)</span>
+            <span data-lang="en">After (Living Dialogue)</span>
+          </div>
+          <p class="text-sm font-mono p-3 rounded-lg bg-[var(--highlight-bg)] opacity-90">
+            «Я хочу объяснить коллегам изменения в нашей работе. Задай мне 3 вопроса про наши сложности, чтобы я точнее сформулировал главный посыл.»
+          </p>
+          <p class="text-xs opacity-90" style="color: var(--accent-primary);" data-lang="ru">Включает ИИ в диалог, помогая вам самим нащупать точную суть.</p>
+          <p class="text-xs opacity-90" style="color: var(--accent-primary);" data-lang="en">Engages the AI as a active thinking partner to clarify your core message.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. KEY PHRASES THAT STEER THE CONVERSATION -->
+    <section class="space-y-6">
+      <div class="border-b border-[var(--border-color)] pb-3 flex items-center justify-between">
+        <div>
+          <h2 class="font-serif-title text-2xl sm:text-3xl font-semibold">
+            <span data-lang="ru">10 фраз-ключей для управления разговором</span>
+            <span data-lang="en">10 Steering Prompts for Conversation</span>
+          </h2>
+          <p class="text-sm opacity-75 mt-1" style="color: var(--text-muted);">
+            <span data-lang="ru">Нажмите на любую карточку, чтобы скопировать фразу в клипборд</span>
+            <span data-lang="en">Click any card to copy the prompt to clipboard</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="steering-prompts-grid">
+        <!-- JS renders 10 prompt cards here dynamically for current language -->
+      </div>
+    </section>
+
+    <!-- 5. INTERACTIVE SECTION: SPHERES & DISCIPLINES -->
+    <section class="space-y-8" id="spheres-section">
+      <div class="border-b border-[var(--border-color)] pb-4 space-y-2">
+        <div class="inline-block px-2.5 py-0.5 rounded text-xs font-semibold uppercase tracking-wider bg-[var(--highlight-bg)]" style="color: var(--accent-secondary);">
+          <span data-lang="ru">Практика со-творчества</span>
+          <span data-lang="en">Co-Creation Practice</span>
+        </div>
+        <h2 class="font-serif-title text-3xl sm:text-4xl font-semibold tracking-tight">
+          <span data-lang="ru">Примеры и подсказки для вашей сферы</span>
+          <span data-lang="en">Examples &amp; Prompts for Your Field</span>
+        </h2>
+        <p class="text-base opacity-80" style="color: var(--text-muted);">
+          <span data-lang="ru">Выберите вашу деятельность — здесь собраны готовые формулировки для глубокого размышления</span>
+          <span data-lang="en">Select your field to explore tailored prompts for deep collaboration</span>
+        </p>
+      </div>
+
+      <!-- SPHERE CATEGORY TABS -->
+      <div class="flex flex-wrap gap-2 no-print" id="sphere-tabs-container">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- ACTIVE SPHERE CONTENT DISPLAY -->
+      <div id="active-sphere-display" class="space-y-8">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 6. CAFÉ RULE & FACT-CHECKING -->
+    <section class="space-y-6">
+      <div class="border-b border-[var(--border-color)] pb-3">
+        <h2 class="font-serif-title text-2xl sm:text-3xl font-semibold">
+          <span data-lang="ru">Правило кафе и проверка фактов</span>
+          <span data-lang="en">The Café Rule &amp; Fact-Checking</span>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Card 1: Fact-Checking -->
+        <div class="custom-card p-6 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-sm uppercase tracking-wider">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <span data-lang="ru">Всегда проверяйте факты</span>
+            <span data-lang="en">Always Verify Facts</span>
+          </div>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
+            <span data-lang="ru">ИИ может отвечать абсолютно спокойным, уверенным тоном, даже когда додумывает детали. Всегда перепроверяйте точные даты, цитаты, статьи законов, научные ссылки и точные расчеты.</span>
+            <span data-lang="en">An AI can respond in a completely confident, calm voice even when mistaken. Always double-check exact dates, quotes, legal clauses, citations, and specific calculations.</span>
+          </p>
+        </div>
+
+        <!-- Card 2: Café Rule -->
+        <div class="custom-card p-6 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm uppercase tracking-wider">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <span data-lang="ru">Правило кафе (безопасность)</span>
+            <span data-lang="en">The Café Rule (Privacy)</span>
+          </div>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
+            <span data-lang="ru">Не отправляйте в открытый чат то, что вы не стали бы зачитывать вслух за столиком в людном кафе: реальные имена клиентов или пациентов, диагнозы, личные данные, пароли и непубличные договоры. Заменяйте имена на роли («Пациент А», «Заказчик Б»).</span>
+            <span data-lang="en">Never paste anything into an online chat that you wouldn't read aloud at a busy café table: real client/patient names, personal IDs, passwords, diagnoses, or private contracts. Replace real names with roles ("Patient A", "Client X").</span>
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 7. FIRST EVENING: FIVE CALM EXPERIMENTS -->
+    <section class="space-y-6">
+      <div class="border-b border-[var(--border-color)] pb-3 flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h2 class="font-serif-title text-2xl sm:text-3xl font-semibold">
+            <span data-lang="ru">Первый вечер: 5 спокойных проб</span>
+            <span data-lang="en">First Evening: 5 Calm Experiments</span>
+          </h2>
+          <p class="text-sm opacity-75 mt-1" style="color: var(--text-muted);">
+            <span data-lang="ru">Маленький чек-лист для первого знакомства. Прогресс сохраняется в вашем браузере.</span>
+            <span data-lang="en">A simple checklist for your first attempts. Progress is saved locally.</span>
+          </p>
+        </div>
+        
+        <div class="flex items-center gap-3 text-xs">
+          <span id="checklist-progress" class="font-bold px-2.5 py-1 rounded-full bg-[var(--highlight-bg)]" style="color: var(--accent-primary);">0 / 5</span>
+          <button onclick="resetChecklist()" class="opacity-60 hover:opacity-100 underline transition-opacity">
+            <span data-lang="ru">Сбросить</span>
+            <span data-lang="en">Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-3" id="checklist-container">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 8. GO DEEPER & FOOTER -->
+    <section class="space-y-8 pt-6">
+      
+      <!-- Invitation Card to Main Guide -->
+      <div class="custom-card p-8 rounded-3xl text-center space-y-4 relative overflow-hidden" style="background-color: var(--highlight-bg);">
+        <h3 class="font-serif-title text-3xl font-bold">
+          <span data-lang="ru">Хотите пойти глубже?</span>
+          <span data-lang="en">Ready to Go Deeper?</span>
+        </h3>
+        <p class="text-base max-w-2xl mx-auto opacity-90 leading-relaxed" style="color: var(--text-muted);">
+          <span data-lang="ru">Эта шпаргалка — компактное дополнение к большому Путеводителю по диалогу с искусственным интеллектом (7 уроков «Базы», 12 полных сценариев-зеркал для разных профессий, раздел про ИИ-агентов и работу на собственном компьютере).</span>
+          <span data-lang="en">This cheat sheet is a companion to the full Guide to Dialogue with AI (featuring 7 core lessons, 12 complete profession scenario dialogues, AI agents, and local offline models).</span>
+        </p>
+        <div class="pt-2">
+          <a href="https://jag999g.github.io/ai-dialogue-guide/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white shadow-sm transition-all hover:opacity-90 hover:scale-105" style="background-color: var(--accent-primary);">
+            <span data-lang="ru">Открыть полный Путеводитель</span>
+            <span data-lang="en">Open the Full Guide</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quiet Footer -->
+      <footer class="text-center text-xs space-y-2 pt-6 border-t border-[var(--border-color)] opacity-75" style="color: var(--text-muted);">
+        <p>
+          <span data-lang="ru">Диалог с ИИ на одной странице · Создано в со-творчестве человека и Gemini</span>
+          <span data-lang="en">Talking to AI — A One-Page Companion · Created in dialogue between human and Gemini</span>
+        </p>
+        <p class="text-[11px] opacity-70">
+          <span data-lang="ru">Все формулировки одинаково применимы к Gemini, Claude, DeepSeek, ChatGPT, Qwen, Kimi, Mistral и локальным моделям.</span>
+          <span data-lang="en">All prompts work seamlessly across Gemini, Claude, DeepSeek, ChatGPT, Qwen, Kimi, Mistral, and local models.</span>
+        </p>
+      </footer>
+
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl text-white shadow-lg text-sm font-medium flex items-center gap-2 no-print" style="background-color: var(--accent-primary);">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <span id="toast-message">Скопировано в буфер обмена</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // DATA STRUCTURE: 10 Steering Prompts
+    const steeringPrompts = [
+      {
+        ru: "Задай мне 4–5 уточняющих вопросов, прежде чем отвечать.",
+        en: "Ask me 4–5 clarifying questions before you answer.",
+        hintRu: "Когда задача пока сформулирована туманно",
+        hintEn: "When the task is still vaguely defined"
+      },
+      {
+        ru: "Поспорь со мной: где в этой идее самое слабое место?",
+        en: "Push back on this: what is the weakest part of my idea?",
+        hintRu: "Для честной проверки задумки на прочность",
+        hintEn: "For an honest stress-test of your proposal"
+      },
+      {
+        ru: "Не пиши текст за меня — помоги нащупать структуру вопросами.",
+        en: "Don't write this for me — help me find the structure through questions.",
+        hintRu: "Чтобы сохранить свой авторский голос",
+        hintEn: "To preserve your unique authorial voice"
+      },
+      {
+        ru: "В каких частях ответа ты меньше всего уверен?",
+        en: "Which parts of your answer are you least sure about?",
+        hintRu: "Быстрый поиск возможных выдумок и неточностей",
+        hintEn: "Quick check for uncertainties or gaps"
+      },
+      {
+        ru: "Объясни это через точную метафору из другой области.",
+        en: "Explain this through a concrete metaphor from another field.",
+        hintRu: "Для наглядного объяснения сложной темы",
+        hintEn: "To visualize complex ideas clearly"
+      },
+      {
+        ru: "Дай три принципиально разных угла зрения на эту ситуацию.",
+        en: "Give me three genuinely different perspectives on this.",
+        hintRu: "Чтобы выйти за рамки привычного видения",
+        hintEn: "To break out of habitual thinking traps"
+      },
+      {
+        ru: "Короче, пожалуйста. Убери лишнее и оставь самую суть.",
+        en: "Shorter, please. Strip the filler and keep the core.",
+        hintRu: "Когда ответ получился слишком длинным",
+        hintEn: "When the initial response is overly wordy"
+      },
+      {
+        ru: "Перепиши без канцелярита и штампов, спокойным живым языком.",
+        en: "Rewrite this without jargon or clichés, in calm, natural language.",
+        hintRu: "Убирает сухой офисный стиль",
+        hintEn: "Removes dry corporate Speak"
+      },
+      {
+        ru: "Покажи ход рассуждений шаг за шагом и назови свои допущения.",
+        en: "Show your reasoning step by step and state your assumptions.",
+        hintRu: "Для проверки логической цепочки",
+        hintEn: "To verify the underlying logic"
+      },
+      {
+        ru: "Стоп, мы ушли не туда. Забудь прошлый ответ и вернёмся к цели…",
+        en: "Stop, we drifted off track. Let's set that aside and return to the goal…",
+        hintRu: "Мягкий разворот разговорного русла",
+        hintEn: "Gently steer the conversation back"
+      }
+    ];
+
+    // DATA STRUCTURE: 8 SPHERES WITH 6 DETAILED PROMPTS EACH (3 QUICK, 3 DEEP)
+    const spheresData = [
+      {
+        id: "language",
+        titleRu: "Слово, язык и литература",
+        titleEn: "Language, Writing & Literature",
+        subtitleRu: "Для лингвистов, переводчиков, писателей, редактов и журналистов",
+        subtitleEn: "For linguists, translators, writers, editors & journalists",
+        tipRu: "ИИ чувствует оттенки смыслов и стилистические регистры, когда вы просите сравнить варианты на контрасте.",
+        tipEn: "AI excels at nuanced stylistic comparisons when prompted with explicit contrasting options.",
+        quickPrompts: [
+          {
+            ru: "Предложи 4 варианта перевода этой фразы: [вставьте фрагмент] — от строго буквального до художественного и разговорного.",
+            en: "Provide 4 translation variants for this passage: [paste excerpt] — from strictly literal to literary and colloquial."
+          },
+          {
+            ru: "Найди в этом тексте [вставьте текст] повторы смыслов, штампы и местоимения, без которых предложение звучит сильнее.",
+            en: "Identify redundant phrasing, clichés, and unnecessary pronouns in this draft: [paste draft]."
+          },
+          {
+            ru: "Проанализируй синтаксический ритм этого абзаца [вставьте абзац]. Где длина предложений спотыкается?",
+            en: "Analyze the syntactic rhythm of this paragraph: [paste paragraph]. Where does the sentence cadence stumble?"
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Смысловая лаборатория и проверка коннотаций",
+            titleEn: "Connotation & Semantic Lab",
+            ru: "Я ищу точное слово для описания [укажите состояние/явление]. Вот 3 близких синонима, о которых я думаю: [слово 1, слово 2, слово 3]. Проведи их смысловой разбор: какие скрытые оттенки и ассоциации несёт каждое слово в современном языке?",
+            en: "I am looking for the exact word to describe [concept/emotion]. Here are 3 candidate synonyms: [word 1, word 2, word 3]. Analyze their nuanced semantic differences and emotional connotations in modern usage."
+          },
+          {
+            titleRu: "Интервью с персонажем или эпохой",
+            titleEn: "Dialogue with Character or Era",
+            ru: "Войди в роль литературного редактора эпохи [укажите век/направление]. Прочитай отрывок моей главы [вставьте фрагмент] и задай мне 3 вопроса про мотивацию персонажа, заметив исторические или стилистические неточности.",
+            en: "Adopt the persona of a literary editor specialized in [era/genre]. Read this excerpt [paste excerpt] and ask 3 probing questions about character motivation and historical authenticity."
+          },
+          {
+            titleRu: "Проверка стилистической цельности",
+            titleEn: "Stylistic Consistency Audit",
+            ru: "Вот два фрагмента из разных частей моей рукописи: [Фрагмент А] и [Фрагмент Б]. Различаются ли они по тону, ритму и дистанции с читателем? Помоги прийти к единой интонации.",
+            en: "Here are two excerpts from different chapters: [Excerpt A] and [Excerpt B]. Do they differ in voice, cadence, or distance from the reader? Help me align them into a single tone."
+          }
+        ]
+      },
+      {
+        id: "science",
+        titleRu: "Наука и исследования",
+        titleEn: "Science, Research & Study",
+        subtitleRu: "Для физиков, генетиков, философов, антропологов и студентов",
+        subtitleEn: "For physicists, geneticists, philosophers, anthropologists & students",
+        tipRu: "Используйте ИИ как междисциплинарное зеркало для стресс-тестирования гипотез и методологии.",
+        tipEn: "Use AI as a cross-disciplinary soundboard to stress-test research hypotheses and methodologies.",
+        quickPrompts: [
+          {
+            ru: "Объясни сущность явления [вставьте термин, напр. квантовая запутанность / эпигенетика] через наглядную метафору для аудитории смежной специальности.",
+            en: "Explain the essence of [concept, e.g., quantum entanglement / epigenetics] using a clear metaphor for an interdisciplinary audience."
+          },
+          {
+            ru: "Сформулируй 3 контраргумента против моей рабочей гипотезы: [вставьте кратко гипотезу].",
+            en: "Formulate 3 counter-arguments or alternative interpretations challenging my research hypothesis: [insert hypothesis]."
+          },
+          {
+            ru: "Помоги структурировать аннотацию (abstract) для статьи по теме [вставьте тему] на 150 слов.",
+            en: "Help me structure a crisp 150-word paper abstract on the topic of [insert research topic]."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Методологический оппонент",
+            titleEn: "Methodological Stress-Test",
+            ru: "Я планирую исследование на тему [опишите тему и метод]. Представь, что ты строго рецензент академического журнала. Назови 4 слабых места в дизайне эксперимента или выборке, которые мне стоит предусмотреть заранее.",
+            en: "I am designing a study on [describe topic and research method]. Act as a rigorous journal peer reviewer. Point out 4 potential methodological limitations or biases I should address upfront."
+          },
+          {
+            titleRu: "Философско-антропологический контекст",
+            titleEn: "Conceptual & Philosophical Lens",
+            ru: "Я изучаю феномен [вставьте феномен]. Сопоставь, как этот феномен рассматривался бы с позиций [Концепция/Автор А] и с позиций [Концепция/Автор Б]. В чём их ключевой смысловой водораздел?",
+            en: "I am researching the phenomenon of [insert phenomenon]. Compare how this would be interpreted through the lens of [Theoretical Framework A] versus [Theoretical Framework B]."
+          },
+          {
+            titleRu: "Междисциплинарный мост",
+            titleEn: "Cross-Disciplinary Translation",
+            ru: "Я специалист в области [ваша область], пишу материал для исследователей из [смежная область]. Помоги перевести эти выводы [вставьте выводы] на язык понятных им категорий и метрик.",
+            en: "I am a researcher in [your field] writing for peers in [adjacent field]. Help me translate these key findings [paste findings] into concepts and terms native to their field."
+          }
+        ]
+      },
+      {
+        id: "psychology",
+        titleRu: "Психология и психотерапия",
+        titleEn: "Psychology & Psychotherapy",
+        subtitleRu: "Для психоаналитиков, психодраматистов, гештальт-терапевтов и консультантов",
+        subtitleEn: "For psychoanalysts, psychodramatists, Gestalt therapists & counselors",
+        tipRu: "Помните про «Правило кафе»: никогда не вводите реальные имена, диагнозы и узнаваемые обстоятельства клиентов.",
+        tipEn: "Adhere strictly to privacy: anonymize all client scenarios, roles, and identifying details.",
+        quickPrompts: [
+          {
+            ru: "Помоги сформулировать метафору для воркшопа на тему границ и выгорания для группы из [указать аудиторию].",
+            en: "Help brainstorm an experiential metaphor for a workshop on boundaries and burnout for [target group]."
+          },
+          {
+            ru: "Сравни, как феномен [напр., сопротивление / отреагирование] трактуется в гештальт-подходе и в психоанализе.",
+            en: "Compare how [e.g., resistance / acting out] is conceptualized in Gestalt therapy versus psychoanalysis."
+          },
+          {
+            ru: "Составь памятку самопомощи из 5 спокойных шагов при тревоге для клиентов после сессии.",
+            en: "Draft a grounded 5-step self-care psychoeducational handout for clients experiencing anxiety."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Супервизорское со-мышление (обезличенно)",
+            titleEn: "Anonymized Case Reflection Partner",
+            ru: "Рабочий случай (полностью обезличен): Клиент А., динамика [опишите динамику без имён и деталей]. Я чувствую контрперенос в виде [опишите ощущение]. Задай мне 4 вопроса, которые помогут мне посмотреть на этот процесс с позиции наблюдения за полем.",
+            en: "Anonymized case note: Client A presents with [describe dynamics]. As therapist, I observe a countertransference reaction of [describe feeling]. Ask 4 reflective questions to help me examine the relational field."
+          },
+          {
+            titleRu: "Проектирование психодраматического / практического упражнения",
+            titleEn: "Designing Experiential/Psychodrama Exercises",
+            ru: "Я готовлю групповое занятие по теме [указать тему, напр., внутренний критик]. Предложи структуру действия из 3 этапов: разогрев, основная сцена (ролевой обмен) и шеринг.",
+            en: "I am designing a group therapy session on [topic, e.g., the inner critic]. Outline a 3-stage structure: warm-up, main action (role reversal), and integration sharing."
+          },
+          {
+            titleRu: "Разбор концепта на языке разных школ",
+            titleEn: "Multi-Modality Lens Comparison",
+            ru: "Опиши клиентский запрос «чувство тупика в выборе» через термины трех терапевтических школ: 1) гештальт (полярности/эго-состояние), 2) психоанализ (конфликт), 3) нарративная терапия (экстернализация).",
+            en: "Describe a client's 'feeling stuck in decision-making' through 3 modalities: 1) Gestalt (polarities), 2) Psychoanalysis (internal conflict), 3) Narrative therapy (externalization)."
+          }
+        ]
+      },
+      {
+        id: "medicine",
+        titleRu: "Медицина",
+        titleEn: "Medicine & Clinical Practice",
+        subtitleRu: "Для врачей различных специальностей и медицинских исследователей",
+        subtitleEn: "For physicians, medical specialists & clinical researchers",
+        tipRu: "ИИ помогает переводить сложные медицинские термины на уважительный и понятный человеку язык.",
+        tipEn: "AI is an excellent tool for translating dense medical jargon into empathetic, clear patient communications.",
+        quickPrompts: [
+          {
+            ru: "Перепиши эту рекомендацию по приёму препаратов [вставьте текст] простым языком для пожилого пациента.",
+            en: "Rewrite these medication instructions [paste text] in simple, clear language for an elderly patient."
+          },
+          {
+            ru: "Составьте памятку с ответами на 5 частых тревожных вопросов пациентов перед процедурой [вставьте процедуру].",
+            en: "Draft an FAQ handout addressing 5 common patient anxieties regarding [procedure/treatment]."
+          },
+          {
+            ru: "Помоги набросать план научно-популярной лекции для пациентов на тему [вставьте тему].",
+            en: "Help outline a 30-minute educational talk for patients on managing [condition]."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Подготовка памятки после приёма",
+            titleEn: "Post-Consultation Patient Guide",
+            ru: "Я врач-специалист. Помоги создать краткую, тёплую и понятную памятку для пациента с диагнозом [вставьте диагноз без имён]. Включи блоки: «Что происходит», «Что делать каждый день», «Когда срочно связаться с врачом».",
+            en: "Help me create an empathetic post-visit summary for a patient diagnosed with [condition]. Include: 'What this means', 'Daily self-care steps', and 'Red flag symptoms'."
+          },
+          {
+            titleRu: "Репетиция сложного разговора с родственниками",
+            titleEn: "Rehearsing Sensitive Discussions",
+            ru: "Мне предстоит деликатный разговор с родственниками пациента о необходимости [укажите медицинское решение]. Задай мне 3 вопроса, которые помогут мне выстроить беседу сочувственно, но с чёткими границами.",
+            en: "I need to discuss a difficult treatment decision with a patient's family. Ask me 3 questions to help structure this conversation with compassion and clarity."
+          },
+          {
+            titleRu: "Систематизация медицинских наблюдений",
+            titleEn: "Structuring Research Literature Summaries",
+            ru: "Я готовлю обзор клинических рекомендаций по теме [вставьте тему]. Помоги составить сводную таблицу из 4 колонок: Методика | Уровень доказательности | Показания | Ограничения.",
+            en: "I am synthesizing clinical literature on [topic]. Help me outline a comparative framework with columns: Intervention | Evidence Level | Indications | Limitations."
+          }
+        ]
+      },
+      {
+        id: "teaching",
+        titleRu: "Преподавание и развитие",
+        titleEn: "Teaching & Mentorship",
+        subtitleRu: "Для преподавателей вузов, учителей, педагогов вокала и тренеров по EQ",
+        subtitleEn: "For university professors, teachers, vocal coaches & EQ trainers",
+        tipRu: "Стройте метафоры через понятные ученику контексты (программирование, архитектуру, спорт).",
+        tipEn: "Build analogies tuned to your student's background (e.g., software engineering, architecture, sports).",
+        quickPrompts: [
+          {
+            ru: "Объясни принцип [напр., опору дыхания / эмоцию гнева] через понятную метафору для человека из сферы IT.",
+            en: "Explain [e.g., breath support / emotional regulation] using an engineering metaphor for a software developer."
+          },
+          {
+            ru: "Предложи 3 варианта интерактивной разминки для студентов в начале занятия по теме [вставьте тему].",
+            en: "Suggest 3 quick interactive warm-up exercises for a class starting a module on [topic]."
+          },
+          {
+            ru: "Помоги переформулировать тестовый вопрос по [тема], чтобы он проверял понимание, а не зубрежку.",
+            en: "Reframe this test question on [topic] to assess conceptual comprehension rather than rote memory."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Телесно-соматическая или творческая метафора",
+            titleEn: "Somatic & Experiential Metaphor Design",
+            ru: "Мой ученик (инженер по профессии) зажимает [челюсть/внимание/голос] при работе с [задачей]. Стандартные академические метафоры не работают. Помоги придумать 3 наглядных физических образа из механики или физики.",
+            en: "My student (a software developer) gets physically or mentally tense during [vocal/presentation practice]. Standard metaphors fail. Brainstorm 3 mechanical/physical analogies."
+          },
+          {
+            titleRu: "Проектирование двуязычного курса или воркшопа",
+            titleEn: "Bilingual Workshop Curriculum Design",
+            ru: "Я разрабатываю модуль по эмоциональному интеллекту для международной аудитории. Помоги сформулировать 4 ключевых тезиса по теме [вставьте тему] на русском и английском языках в ровном, уважительном тоне.",
+            en: "I am designing an Emotional Intelligence module for an international audience. Help me articulate 4 key takeaways on [topic] in both English and Russian."
+          },
+          {
+            titleRu: "Диалоговый сценарий для сложных вопросов",
+            titleEn: "Socratic Discussion Facilitation",
+            ru: "Я хочу провести дискуссию в классе/группе на тему [вставьте тему]. Напиши сценарий из 5 последовательных Сократических вопросов, ведущих от простых наблюдений к глубоким выводам.",
+            en: "I want to facilitate a Socratic discussion on [topic]. Draft a sequence of 5 progressive questions guiding students from basic observations to deep reflection."
+          }
+        ]
+      },
+      {
+        id: "art",
+        titleRu: "Искусство, музыка и дизайн",
+        titleEn: "Art, Music & Design",
+        subtitleRu: "Для художников, композиторов, музыкантов, вокалистов, искусствоведов и дизайнеров",
+        subtitleEn: "For artists, composers, musicians, vocalists, art historians & designers",
+        tipRu: "Используйте ИИ как галерейного куратора или интервьюера для выявления скрытого замысла.",
+        tipEn: "Use AI as a gallery curator or interviewer to uncover the deeper story behind your creative work.",
+        quickPrompts: [
+          {
+            ru: "Помоги написать экспликацию (кураторский текст) к выставке / серии работ на тему [вставьте тему] на 200 слов.",
+            en: "Help write a 200-word gallery exhibition statement for a series of works about [theme]."
+          },
+          {
+            ru: "Найди 4 эмоциональных контраста для музыкальной композиции / визуального решения в теме [вставьте тему].",
+            en: "Suggest 4 conceptual contrasts for a musical piece / visual design centered around [theme]."
+          },
+          {
+            ru: "Как описать эту палитру и фактуру [вставьте описание] без банальных слов вроде «красивый» и «гармоничный»?",
+            en: "Describe this visual palette and texture [describe work] avoiding overused clichés like 'beautiful' or 'stunning'."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Интервью Куратора с Автором",
+            titleEn: "Curator Interview Session",
+            ru: "Задай мне 4 глубоких вопроса о моей новой серии работ / музыкальном произведении [опишите замысел]. Задавай по одному вопросу за раз, как искусствовед, пытающийся нащупать первопричину замысла.",
+            en: "Act as a thoughtful art curator. Ask me 4 deep questions about my new project [describe concept], one at a time, to help me articulate my creative intent."
+          },
+          {
+            titleRu: "Концептуальный мост между звуком и формой",
+            titleEn: "Interdisciplinary Concept Bridge",
+            ru: "Я композитор/художник. Я хочу соединить в одном проекте [образ/звук А] и [структуру Б]. Предложи 3 варианта объединяющей концепции, избегая заезженных визуальных и аудиальных штампов.",
+            en: "I want to bridge [visual element/sound A] and [structure B] in a unified work. Propose 3 non-cliché conceptual frameworks."
+          },
+          {
+            titleRu: "Анализ восприятия зрителя / слушателя",
+            titleEn: "Audience Experience & Perception Audit",
+            ru: "Опиши, какие чувства и ассоциации может вызывать у зрителя/слушателя следующая последовательность: [опишите структуру произведения]. В чем здесь точка максимального напряжения?",
+            en: "Analyze the potential emotional journey of an audience experiencing this progression: [describe artwork structure]. Where is the climatic pivot?"
+          }
+        ]
+      },
+      {
+        id: "architecture",
+        titleRu: "Архитектура, стройка и технологии",
+        titleEn: "Architecture, Building & Tech",
+        subtitleRu: "Для архитекторов, строителей, инженеров и специалистов по ИБ",
+        subtitleEn: "For architects, builders, engineers & cybersecurity specialists",
+        tipRu: "Переводите технические риски и ограничения на язык человеческих сценариев использования.",
+        tipEn: "Translate complex engineering constraints into intuitive human-centric scenarios.",
+        quickPrompts: [
+          {
+            ru: "Объясни заказчику не-технарю, почему попытка сэкономить на [вставьте этап/узел] приведет к риску [вставьте риск].",
+            en: "Explain to a non-technical client why skimping on [component/phase] introduces serious risks."
+          },
+          {
+            ru: "Помоги структурировать чек-лист проверки безопасности / аудита для объекта [вставьте тип].",
+            en: "Help structure a safety audit checklist for [project/facility type]."
+          },
+          {
+            ru: "Сформулируй 3 архитектурных/технических решения для конфликта требований: [требование А] против [требование Б].",
+            en: "Propose 3 design/engineering tradeoffs resolving conflicting requirements: [Requirement A] vs [Requirement B]."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Перевод технических рисков заказчику",
+            titleEn: "Translating Technical Risks to Stakeholders",
+            ru: "Мы проводим реконструкцию/обследование [опишите объект]. Обнаружен технический риск [опишите проблему]. Помоги аргументировать перед заказчиком необходимость бюджета без запугивания, но с чётким раскладом последствия/решение.",
+            en: "During our assessment of [building/system], we identified [technical risk]. Help draft a clear explanation for stakeholders detailing consequences and solutions without panic."
+          },
+          {
+            titleRu: "Сценарии использования и пространственный диалог",
+            titleEn: "Human Flow & Spatial Scenario Modeling",
+            ru: "Я проектирую пространство / архитектуру системы для [указать цель]. Опиши три разных дня из жизни людей, которые будут этим пользоваться: 1) в обычной рутине, 2) в час пик, 3) в нестандартной ситуации.",
+            en: "I am designing a space/system for [purpose]. Model 3 distinct user flow scenarios: 1) standard routine, 2) peak load/rush, 3) contingency situation."
+          },
+          {
+            titleRu: "Моделирование угроз и допущений (ИБ / Инженерия)",
+            titleEn: "Threat & Assumption Stress-Testing",
+            ru: "Вот наша текущая архитектура защиты / конструктивная схема: [вставьте описание]. Выступи в роли 'этичного хакера' / инспектора по надежности. Назови 3 неочевидных сценария отказа.",
+            en: "Here is our infrastructure/security model: [describe setup]. Act as a red-team auditor. Identify 3 unexpected failure modes or security oversights."
+          }
+        ]
+      },
+      {
+        id: "analysis",
+        titleRu: "Аналитика, право и управление",
+        titleEn: "Analysis, Law & Leadership",
+        subtitleRu: "Для бизнес- и фин. аналитиков, юристов, маркетологов и руководителей",
+        subtitleEn: "For business & financial analysts, lawyers, marketers & leaders",
+        tipRu: "Всегда обезличивайте договоры и отчеты. Просите ИИ выделить главное и подсветить скрытые допущения.",
+        tipEn: "Anonymize all contracts and datasets. Ask the AI to extract hidden assumptions and redlines.",
+        quickPrompts: [
+          {
+            ru: "Выдели 3 ключевых рискованных условия в этой обезличенной формулировке договора: [вставьте фрагмент].",
+            en: "Identify 3 risk factors in this anonymized clause: [paste clause]."
+          },
+          {
+            ru: "Сформулируй главное резюме (Executive Summary) на основе этих 5 тезисов: [вставьте тезисы].",
+            en: "Draft a concise Executive Summary from these 5 bullet points: [paste bullets]."
+          },
+          {
+            ru: "Предложи 3 гипотезы, почему показатель [метрика] мог снизиться в этом квартале, кроме очевидного сезона.",
+            en: "Propose 3 underlying hypotheses for the drop in [metric] this quarter, beyond obvious seasonality."
+          }
+        ],
+        deepPrompts: [
+          {
+            titleRu: "Подготовка к сложной встрече или совещанию",
+            titleEn: "Meeting Preparation & Strategy Alignment",
+            ru: "Мне предстоит совещание с [указать стороны] по вопросу [суть конфликта/выбора]. Моя позиция — [позиция]. Задай мне 3 острых вопроса, которые мне наверняка зададут оппоненты, и помоги подготовить спокойные ответы.",
+            en: "I am holding a strategic meeting with [stakeholders] regarding [issue]. My position is [position]. Ask 3 tough questions my opponents will likely raise and help draft calm responses."
+          },
+          {
+            titleRu: "Анализ стратегических альтернатив (Red Teaming)",
+            titleEn: "Red Teaming Strategic Alternatives",
+            ru: "Наша команда выбирает между Стратегией А [описание] и Стратегией Б [описание]. Проведи сравнительный анализ по 4 критериям: Затраты | Скорость | Скрытые риски | Долгосрочный эффект. Оформи в виде таблицы.",
+            en: "We are choosing between Option A [describe] and Option B [describe]. Compare them across 4 dimensions: Cost | Speed | Hidden Risks | Long-term Impact in a structured table."
+          },
+          {
+            titleRu: "Обезличенный разбор проблемной коммуникации",
+            titleEn: "Anonymized Leadership Communication Restructuring",
+            ru: "В нашей организации возникло взаимонепонимание между отделом А и отделом Б по поводу [причина]. Помоги написать открытое письмо от руководителя, которое вернет диалог в конструктивное русло без поиска виноватых.",
+            en: "An organizational misalignment occurred between Team A and Team B regarding [issue]. Draft an internal memo from leadership that shifts focus to resolution without assigning blame."
+          }
+        ]
+      }
+    ];
+
+    // DATA STRUCTURE: CHECKLIST
+    const checklistItems = [
+      {
+        ru: "1. Выгрузить клубок мыслей вслух и попросить разложить на 3 главные ветки",
+        en: "1. Untangle a messy stream of thoughts into three clear main threads"
+      },
+      {
+        ru: "2. Отрепетировать непростой разговор или важное деликатное письмо",
+        en: "2. Rehearse a delicate conversation or important nuanced email"
+      },
+      {
+        ru: "3. Попросить честно поспорить с вашей любимой идеей и найти слабые места",
+        en: "3. Ask it to honestly challenge an idea you love and highlight blind spots"
+      },
+      {
+        ru: "4. Попросить объяснить незнакомое понятие через образ из вашей профессии",
+        en: "4. Ask for an unfamiliar concept explained via a metaphor from your craft"
+      },
+      {
+        ru: "5. Собрать спокойный план реального дела — поездки, выступления или выходного",
+        en: "5. Sketch a realistic, unhurried plan for a real event, trip, or presentation"
+      }
+    ];
+
+    // STATE MANAGEMENT
+    let currentLang = 'ru';
+    let currentSphereId = 'language';
+    let checklistState = [false, false, false, false, false];
+
+    // INITIALIZATION ON LOAD
+    document.addEventListener('DOMContentLoaded', () => {
+      initLanguage();
+      initTheme();
+      initChecklist();
+      renderSteeringPrompts();
+      renderSphereTabs();
+      renderActiveSphere();
+    });
+
+    // LANGUAGE ENGINE
+    function initLanguage() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#en') {
+        currentLang = 'en';
+      } else if (hash === '#ru') {
+        currentLang = 'ru';
+      } else {
+        // Default to RU
+        currentLang = 'ru';
+      }
+      applyLanguageUI();
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      window.location.hash = lang;
+      applyLanguageUI();
+    }
+
+    function applyLanguageUI() {
+      document.documentElement.lang = currentLang;
+      
+      // Update toggle buttons active state
+      const ruBtn = document.getElementById('lang-ru-btn');
+      const enBtn = document.getElementById('lang-en-btn');
+      
+      if (currentLang === 'ru') {
+        ruBtn.style.backgroundColor = 'var(--accent-primary)';
+        ruBtn.style.color = '#ffffff';
+        enBtn.style.backgroundColor = 'transparent';
+        enBtn.style.color = 'var(--text-main)';
+      } else {
+        enBtn.style.backgroundColor = 'var(--accent-primary)';
+        enBtn.style.color = '#ffffff';
+        ruBtn.style.backgroundColor = 'transparent';
+        ruBtn.style.color = 'var(--text-main)';
+      }
+
+      // Re-render dynamic elements
+      renderSteeringPrompts();
+      renderSphereTabs();
+      renderActiveSphere();
+      renderChecklist();
+    }
+
+    // THEME ENGINE
+    function initTheme() {
+      const savedTheme = localStorage.getItem('ai_cheat_theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function toggleTheme() {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('ai_cheat_theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('ai_cheat_theme', 'dark');
+      }
+    }
+
+    // COPY TO CLIPBOARD HANDLER
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast());
+      } else {
+        // Fallback for iframe / unsupported clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast();
+        } catch (err) {
+          console.error('Copy failed', err);
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toast-message');
+      msg.textContent = currentLang === 'ru' ? 'Скопировано в буфер обмена' : 'Copied to clipboard';
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // RENDER STEERING PROMPTS
+    function renderSteeringPrompts() {
+      const grid = document.getElementById('steering-prompts-grid');
+      grid.innerHTML = '';
+
+      steeringPrompts.forEach((item) => {
+        const text = currentLang === 'ru' ? item.ru : item.en;
+        const hint = currentLang === 'ru' ? item.hintRu : item.hintEn;
+
+        const card = document.createElement('div');
+        card.className = 'custom-card p-4 rounded-xl flex flex-col justify-between space-y-3 cursor-pointer group';
+        card.onclick = () => copyText(text);
+
+        card.innerHTML = `
+          <div class="space-y-1">
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-60" style="color: var(--accent-primary);">${hint}</p>
+            <p class="text-sm font-medium font-mono leading-relaxed opacity-95">“${text}”</p>
+          </div>
+          <div class="flex items-center justify-end gap-1 text-xs opacity-70 group-hover:opacity-100 transition-opacity" style="color: var(--accent-primary);">
+            <span>${currentLang === 'ru' ? 'Скопировать' : 'Copy'}</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // RENDER SPHERE TABS
+    function renderSphereTabs() {
+      const container = document.getElementById('sphere-tabs-container');
+      container.innerHTML = '';
+
+      spheresData.forEach((sphere) => {
+        const title = currentLang === 'ru' ? sphere.titleRu : sphere.titleEn;
+        const isActive = sphere.id === currentSphereId;
+
+        const btn = document.createElement('button');
+        btn.className = `sphere-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+          isActive 
+            ? 'text-white shadow-sm' 
+            : 'border border-[var(--border-color)] bg-[var(--highlight-bg)] opacity-80 hover:opacity-100'
+        }`;
+        
+        if (isActive) {
+          btn.style.backgroundColor = 'var(--accent-primary)';
+        } else {
+          btn.style.color = 'var(--text-main)';
+        }
+
+        btn.textContent = title;
+        btn.onclick = () => {
+          currentSphereId = sphere.id;
+          renderSphereTabs();
+          renderActiveSphere();
+        };
+
+        container.appendChild(btn);
+      });
+    }
+
+    // RENDER ACTIVE SPHERE CONTENT
+    function renderActiveSphere() {
+      const display = document.getElementById('active-sphere-display');
+      const sphere = spheresData.find(s => s.id === currentSphereId) || spheresData[0];
+
+      const title = currentLang === 'ru' ? sphere.titleRu : sphere.titleEn;
+      const subtitle = currentLang === 'ru' ? sphere.subtitleRu : sphere.subtitleEn;
+      const tip = currentLang === 'ru' ? sphere.tipRu : sphere.tipEn;
+
+      let html = `
+        <div class="custom-card p-6 sm:p-8 rounded-3xl space-y-8 sphere-content">
+          
+          <!-- Sphere Header -->
+          <div class="space-y-2 border-b border-[var(--border-color)] pb-4">
+            <h3 class="font-serif-title text-3xl font-bold">${title}</h3>
+            <p class="text-sm font-medium opacity-80" style="color: var(--text-muted);">${subtitle}</p>
+            <div class="mt-3 p-3 rounded-xl text-xs leading-relaxed bg-[var(--highlight-bg)] flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" style="color: var(--accent-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span><strong>${currentLang === 'ru' ? 'Совет:' : 'Tip:'}</strong> ${tip}</span>
+            </div>
+          </div>
+
+          <!-- Subsection A: Quick Practical Prompts -->
+          <div class="space-y-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider opacity-70" style="color: var(--accent-primary);">
+              ${currentLang === 'ru' ? 'А. Быстрые практические запросы' : 'A. Quick Practical Prompts'}
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      `;
+
+      sphere.quickPrompts.forEach((p) => {
+        const text = currentLang === 'ru' ? p.ru : p.en;
+        html += `
+          <div class="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-color)] flex flex-col justify-between space-y-3">
+            <p class="text-xs font-mono leading-relaxed opacity-90">${text}</p>
+            <button onclick="copyText(\`${text.replace(/`/g, '\\`')}\`)" class="no-print self-end text-[11px] font-semibold flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity" style="color: var(--accent-primary);">
+              <span>${currentLang === 'ru' ? 'Скопировать' : 'Copy'}</span>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+          </div>
+        `;
+      });
+
+      html += `
+            </div>
+          </div>
+
+          <!-- Subsection B: Deep Co-Creation Prompts -->
+          <div class="space-y-4 pt-4 border-t border-[var(--border-color)]">
+            <h4 class="text-xs font-bold uppercase tracking-wider opacity-70" style="color: var(--accent-secondary);">
+              ${currentLang === 'ru' ? 'Б. Для глубокого со-творчества' : 'B. Deep Thinking & Dialogue Prompts'}
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      `;
+
+      sphere.deepPrompts.forEach((dp) => {
+        const promptTitle = currentLang === 'ru' ? dp.titleRu : dp.titleEn;
+        const text = currentLang === 'ru' ? dp.ru : dp.en;
+
+        html += `
+          <div class="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-color)] flex flex-col justify-between space-y-3">
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-[var(--highlight-bg)]" style="color: var(--accent-secondary);">${promptTitle}</span>
+              <p class="text-xs font-mono leading-relaxed opacity-90 pt-1">${text}</p>
+            </div>
+            <button onclick="copyText(\`${text.replace(/`/g, '\\`')}\`)" class="no-print self-end text-[11px] font-semibold flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity" style="color: var(--accent-secondary);">
+              <span>${currentLang === 'ru' ? 'Скопировать' : 'Copy'}</span>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+          </div>
+        `;
+      });
+
+      html += `
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      display.innerHTML = html;
+    }
+
+    // CHECKLIST LOGIC
+    function initChecklist() {
+      const saved = localStorage.getItem('ai_cheat_checklist');
+      if (saved) {
+        try {
+          checklistState = JSON.parse(saved);
+        } catch (e) {
+          checklistState = [false, false, false, false, false];
+        }
+      }
+      renderChecklist();
+    }
+
+    function toggleChecklist(index) {
+      checklistState[index] = !checklistState[index];
+      localStorage.setItem('ai_cheat_checklist', JSON.stringify(checklistState));
+      renderChecklist();
+    }
+
+    function resetChecklist() {
+      checklistState = [false, false, false, false, false];
+      localStorage.setItem('ai_cheat_checklist', JSON.stringify(checklistState));
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklist-container');
+      const progressEl = document.getElementById('checklist-progress');
+      container.innerHTML = '';
+
+      let checkedCount = 0;
+
+      checklistItems.forEach((item, idx) => {
+        const text = currentLang === 'ru' ? item.ru : item.en;
+        const isChecked = !!checklistState[idx];
+        if (isChecked) checkedCount++;
+
+        const row = document.createElement('div');
+        row.className = `custom-card p-4 rounded-xl flex items-center gap-4 cursor-pointer select-none transition-all ${
+          isChecked ? 'opacity-60 bg-[var(--highlight-bg)]' : ''
+        }`;
+        row.onclick = () => toggleChecklist(idx);
+
+        row.innerHTML = `
+          <div class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+            isChecked ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[var(--border-color)] bg-transparent'
+          }">
+            ${isChecked ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
+          </div>
+          <span class="text-sm font-medium ${isChecked ? 'line-through opacity-80' : ''}">${text}</span>
+        `;
+
+        container.appendChild(row);
+      });
+
+      progressEl.textContent = `${checkedCount} / 5`;
+    }
+
+    // DYNAMIC MARKDOWN EXPORTER (.md)
+    function downloadMarkdown() {
+      const isRu = currentLang === 'ru';
+      let md = '';
+
+      if (isRu) {
+        md += `# Диалог с ИИ на одной странице\n\n`;
+        md += `*Внеплатформенная шпаргалка · Со-творчество двух интеллектов*\n\n`;
+        md += `> Говорите с ним как с внимательным собеседником. Откройте любой удобный вам чат (Gemini, Claude, DeepSeek, ChatGPT, Qwen, Kimi, Mistral или локальную модель), опишите ситуацию живыми человеческими словами и размышляйте вместе шаг за шагом.\n\n`;
+        
+        md += `## Три режима живого диалога\n\n`;
+        md += `1. **Интервьюер:** Когда мысли путаются — попросите ИИ задать 4–5 уточняющих вопросов, прежде чем давать ответ.\n`;
+        md += `2. **Оппонент:** Когда нужна честная проверка идеи на прочность — попросите найти слабые места и риски.\n`;
+        md += `3. **Соавтор и переводчик смыслов:** Нащупать точную структуру, найти живую метафору или перевести концепцию на язык другой профессии.\n\n`;
+
+        md += `## 10 фраз-ключей для управления разговором\n\n`;
+        steeringPrompts.forEach((p, i) => {
+          md += `${i + 1}. \`${p.ru}\` — *${p.hintRu}*\n`;
+        });
+        md += `\n`;
+
+        md += `## Примеры и подсказки по сферам\n\n`;
+        spheresData.forEach((s) => {
+          md += `### ${s.titleRu}\n`;
+          md += `*${s.subtitleRu}*\n\n`;
+          md += `**Быстрые практические запросы:**\n`;
+          s.quickPrompts.forEach(qp => md += `- ${qp.ru}\n`);
+          md += `\n**Для глубокого со-творчества:**\n`;
+          s.deepPrompts.forEach(dp => md += `- **${dp.titleRu}:** ${dp.ru}\n`);
+          md += `\n`;
+        });
+
+        md += `## Правило кафе и безопасность\n\n`;
+        md += `- **Проверка фактов:** ИИ может отвечать уверенным тоном, даже когда ошибается. Перепроверяйте даты, статьи законов и точные ссылки.\n`;
+        md += `- **Правило кафе:** Не вводите в чат то, что не стали бы зачитывать вслух в людном кафе (имена клиентов, диагнозы, личные данные).\n\n`;
+        
+        md += `---\n*Создано в со-творчестве человека и Gemini · Полный Путеводитель: https://jag999g.github.io/ai-dialogue-guide/*\n`;
+      } else {
+        md += `# Talking to AI — A One-Page Companion\n\n`;
+        md += `*Platform-agnostic companion · Two intelligences in dialogue*\n\n`;
+        md += `> Talk to it like an attentive thinking partner. Open any AI chat (Gemini, Claude, DeepSeek, ChatGPT, Qwen, Kimi, Mistral, or a local model), describe your situation in plain human words, and think together step by step.\n\n`;
+        
+        md += `## Three Modes of Living Dialogue\n\n`;
+        md += `1. **Interviewer:** When thoughts are foggy — ask the AI to ask 4–5 clarifying questions before giving an answer.\n`;
+        md += `2. **Thoughtful Opponent:** When you need an honest stress-test of an idea — ask it to find weak spots and missed risks.\n`;
+        md += `3. **Co-Author & Sense-Translator:** Find a clear structure, a fresh metaphor, or translate concepts into another discipline's language.\n\n`;
+
+        md += `## 10 Steering Prompts for Conversation\n\n`;
+        steeringPrompts.forEach((p, i) => {
+          md += `${i + 1}. \`${p.en}\` — *${p.hintEn}*\n`;
+        });
+        md += `\n`;
+
+        md += `## Examples & Prompts by Field\n\n`;
+        spheresData.forEach((s) => {
+          md += `### ${s.titleEn}\n`;
+          md += `*${s.subtitleEn}*\n\n`;
+          md += `**Quick Practical Prompts:**\n`;
+          s.quickPrompts.forEach(qp => md += `- ${qp.en}\n`);
+          md += `\n**Deep Thinking Prompts:**\n`;
+          s.deepPrompts.forEach(dp => md += `- **${dp.titleEn}:** ${dp.en}\n`);
+          md += `\n`;
+        });
+
+        md += `## The Café Rule & Privacy\n\n`;
+        md += `- **Verify Facts:** Always double-check dates, citations, and specific legal clauses.\n`;
+        md += `- **The Café Rule:** Never paste private client names, IDs, or confidential data into public chats.\n\n`;
+
+        md += `---\n*Created in dialogue between human and Gemini · Full Guide: https://jag999g.github.io/ai-dialogue-guide/*\n`;
+      }
+
+      const filename = isRu ? 'ai-dialogue-one-pager-ru.md' : 'ai-dialogue-one-pager-en.md';
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
